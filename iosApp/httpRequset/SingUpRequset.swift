@@ -9,47 +9,34 @@
 import Foundation
 import Combine
 
-struct ServerMessageSingUp : Decodable {
-    let token, user : String
-    
-}
 
 class SingUpRequset: ObservableObject {
     
-    @Published var authenticated = false
-     var link : String = "http://84.82.7.96:1997/register"
-    
+    let link : String = "http://84.82.7.96:1997/register"
     
     func postAuth(email : String, username :String, password : String)
-    {
-        guard let url = URL(string: link) else {
-            return
+   {
+       guard let url = URL(string: link) else {
+           return
+       }
+       
+       var requset = URLRequest(url: url)
+       requset.httpMethod = "POST"
+       requset.setValue("application/Json", forHTTPHeaderField: "Content-Type")
+    
+       let body : [String: String] = ["email" : email,"user" : username, "password"  :password ]
+        
+        do{
+            requset.httpBody = try!
+                JSONSerialization.data(withJSONObject: body)
+            
         }
-        
-        let body : [String: String] = ["email" :email,   "user" : username, "password"  :password ]
-        
-        let finalBody = try! JSONSerialization.data(withJSONObject: body)
-        
-        
-        var requset = URLRequest(url: url)
-        requset.httpMethod = "POST"
-        requset.httpBody = finalBody
-        requset.setValue("application/Json", forHTTPHeaderField: "Content-Type")
-        
         
         URLSession.shared.dataTask(with: requset){
             (data, response, error) in
             
-            guard let data = data else {return}
-            let resData = try! JSONDecoder().decode(ServerMessageSingUp.self, from: data)
-            
-            print(resData.token)
-            
-            if resData.token == "correct" {
-                DispatchQueue.main.async{
-                    self.authenticated = true
-                }
-            }
         }.resume()
-    }
+
+   }
 }
+

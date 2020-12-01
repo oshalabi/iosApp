@@ -169,10 +169,7 @@ struct signUp :View {
     
     var body : some View{
         ZStack {
-            if self.manger.authenticated {
-                Text("").font(.headline)
-                
-            }
+            
     LinearGradient(gradient: .init(colors: [Color("1"),Color("2")]), startPoint: /*@START_MENU_TOKEN@*/.leading/*@END_MENU_TOKEN@*/, endPoint: /*@START_MENU_TOKEN@*/.trailing/*@END_MENU_TOKEN@*/).edgesIgnoringSafeArea(/*@START_MENU_TOKEN@*/.all/*@END_MENU_TOKEN@*/)
             
         VStack(alignment: /*@START_MENU_TOKEN@*/.center/*@END_MENU_TOKEN@*/, spacing: 22, content: {
@@ -230,11 +227,7 @@ struct signUp :View {
             
         }
         Button(action: {
-            
-            self.manger.postAuth(email: self.email, username: self.user, password: self.pass)
-            
-                
-            
+            manger.postAuth(email: email, username: user, password: pass)
             
         }) {
             
