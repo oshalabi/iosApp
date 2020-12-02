@@ -10,18 +10,25 @@ struct ContentView: View {
     @State var signup = false
     @EnvironmentObject private var login_manger : LoginRequset
     @EnvironmentObject private var Singup_manger : SingUpRequset
+    
+    @State var userIsInGelod = false
+    @State var nogGeenAccount = true
+    
     var body: some View {
         NavigationView {
         ZStack {
-            
             LinearGradient(gradient: .init(colors: [Color("1"),Color("2")]), startPoint: /*@START_MENU_TOKEN@*/.leading/*@END_MENU_TOKEN@*/, endPoint: /*@START_MENU_TOKEN@*/.trailing/*@END_MENU_TOKEN@*/).edgesIgnoringSafeArea(/*@START_MENU_TOKEN@*/.all/*@END_MENU_TOKEN@*/)
-            
+            if userIsInGelod {
+                home(user: self.$user)
+            }
+            if nogGeenAccount {
+                signUp(signup : self.$signup, login: $login, isAtive: signup)
+                
+            }
+            else {
             Login(login: $login, signup: $signup, user: $user, pass: $pass, manger: _login_manger)
 
         }
-        .alert(isPresented: $login){
-            
-            Alert(title: Text(self.user), message: Text(self.pass), dismissButton: .none)
         }
     }
     }
@@ -94,7 +101,7 @@ struct Login : View {
         InputTextField(bindingText: $user, image: "person.fill", placeholder : "Username" , secureTextField : false)
         InputTextField(bindingText: $pass, image: "lock.fill", placeholder : "Password" , secureTextField : true)
         
-        NavigationLink(destination:             home(), isActive: $isInGelogd){
+        NavigationLink(destination:             home(user: $user), isActive: $isInGelogd){
             
             Button(action: {
 
@@ -129,12 +136,13 @@ struct Login : View {
         
         VStack {
             Text("Dont have account yet").foregroundColor(.white)
-            
+        }
+        VStack{
             NavigationLink(destination:                         signUp(signup : self.$signup, login: $login), isActive: $signup){
                 
                 Button(action: {
                     
-                    self.signup = true
+                    self.signup = false
                     
                     
                 }) {
@@ -204,7 +212,7 @@ struct signUp :View {
                     
                     manger.postAuth(email: email, username: user, password: pass)
                     
-                    self.isAtive = true
+                    self.isAtive = false
                     
                 }) {
                     
@@ -234,18 +242,77 @@ struct signUp :View {
 }
 
 struct home : View {
+    @Binding var user : String
+    var body : some View{
+        
+        NavigationView{
+            
+           ZStack {
+           LinearGradient(gradient: .init(colors: [Color("1"),Color("2")]), startPoint: /*@START_MENU_TOKEN@*/.leading/*@END_MENU_TOKEN@*/, endPoint: /*@START_MENU_TOKEN@*/.trailing/*@END_MENU_TOKEN@*/).edgesIgnoringSafeArea(/*@START_MENU_TOKEN@*/.all/*@END_MENU_TOKEN@*/)
+            
+            VStack(alignment: /*@START_MENU_TOKEN@*/.center/*@END_MENU_TOKEN@*/, spacing: 22, content: {
+            
+                Image("logo").resizable().frame(width: 100, height: /*@START_MENU_TOKEN@*/100/*@END_MENU_TOKEN@*/).padding(.bottom, 10)
+            
+                        })
+            NavigationLink("profile", destination: Profile(user: $user))
+            
+           }
+            
+        }
+    }
+}
+
+//
+//            ZStack {
+//        LinearGradient(gradient: .init(colors: [Color("1"),Color("2")]), startPoint: /*@START_MENU_TOKEN@*/.leading/*@END_MENU_TOKEN@*/, endPoint: /*@START_MENU_TOKEN@*/.trailing/*@END_MENU_TOKEN@*/).edgesIgnoringSafeArea(/*@START_MENU_TOKEN@*/.all/*@END_MENU_TOKEN@*/)
+//
+//            VStack(alignment: /*@START_MENU_TOKEN@*/.center/*@END_MENU_TOKEN@*/, spacing: 22, content: {
+//
+//                Image("logo").resizable().frame(width: 100, height: /*@START_MENU_TOKEN@*/100/*@END_MENU_TOKEN@*/).padding(.bottom, 10)
+//
+//            }
+//
+//            NavigationLink(destinationName: Profile(user: $user)) {
+//
+//                Button(action: {
+//
+//
+//                    manger.postAuth(email: email, username: user, password: pass)
+//
+//                    self.isAtive = true
+//
+//                }) {
+//
+//                    Text("SignUP")
+//                        .foregroundColor(.white)
+//                        .padding()
+//                        .frame(width: 150)
+//
+//                }
+//                .background(LinearGradient(gradient: .init(colors: [Color("1"),Color("2")]), startPoint: .leading/*@END_MENU_TOKEN@*/, endPoint: /*@START_MENU_TOKEN@*/.trailing))
+//                .cornerRadius(20)
+//                .shadow(radius: 25)
+//            }
+//
+//
+//    })
+//
+//            }
+//
+//        )}
+//        }
+//
+       
+
+
+struct Profile : View {
+    @Binding var user : String
     
     var body : some View{
-        ZStack {
-    LinearGradient(gradient: .init(colors: [Color("1"),Color("2")]), startPoint: /*@START_MENU_TOKEN@*/.leading/*@END_MENU_TOKEN@*/, endPoint: /*@START_MENU_TOKEN@*/.trailing/*@END_MENU_TOKEN@*/).edgesIgnoringSafeArea(/*@START_MENU_TOKEN@*/.all/*@END_MENU_TOKEN@*/)
+        NavigationView{
             
-        VStack(alignment: /*@START_MENU_TOKEN@*/.center/*@END_MENU_TOKEN@*/, spacing: 22, content: {
-
-            Image("logo").resizable().frame(width: 100, height: /*@START_MENU_TOKEN@*/100/*@END_MENU_TOKEN@*/).padding(.bottom, 10)
-
         }
-    
-    )}
     }
 }
 
