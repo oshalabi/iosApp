@@ -6,7 +6,7 @@
 //  Copyright © 1399 orgName. All rights reserved.
 //
 
-import Foundation
+import SwiftUI
 import Combine
 
 struct ServerMessageLogin : Decodable {
@@ -43,13 +43,14 @@ class LoginRequset: ObservableObject {
             guard let data = data else {return}
             let resData = try! JSONDecoder().decode(ServerMessageLogin.self, from: data)
             
-            print(resData.token)
+            print("fout server")
             
-            if resData.token == "correct" {
+            if resData.token != "" {
                 DispatchQueue.main.async{
                     self.authenticated = true
                 }
             }
+            print(self.authenticated)
         }.resume()
     }
 }

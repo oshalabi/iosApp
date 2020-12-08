@@ -4,29 +4,29 @@ import Combine
 import Foundation
 
 struct ContentView: View {
-    @State var user = ""
-    @State var pass = ""
+    @State var user = "blipblop"
+    @State var pass = "Purevil@22"
     @State var login = false
     @State var signup = false
-    @EnvironmentObject private var login_manger : LoginRequset
+    @EnvironmentObject private var Login_manger : LoginRequset
     @EnvironmentObject private var Singup_manger : SingUpRequset
     
-    @State var userIsInGelod = false
-    @State var nogGeenAccount = true
+    @State var nogGeenAccount = false
     
     var body: some View {
         NavigationView {
         ZStack {
             LinearGradient(gradient: .init(colors: [Color("1"),Color("2")]), startPoint: /*@START_MENU_TOKEN@*/.leading/*@END_MENU_TOKEN@*/, endPoint: /*@START_MENU_TOKEN@*/.trailing/*@END_MENU_TOKEN@*/).edgesIgnoringSafeArea(/*@START_MENU_TOKEN@*/.all/*@END_MENU_TOKEN@*/)
-            if userIsInGelod {
+            
+            if self.Login_manger.authenticated {
                 home(user: self.$user)
             }
             if nogGeenAccount {
-                signUp(signup : self.$signup, login: $login, isAtive: signup)
+                signUp(signup : $signup, login: $login)
                 
             }
             else {
-            Login(login: $login, signup: $signup, user: $user, pass: $pass, manger: _login_manger)
+                Login(login: login, signup: $signup, user: $user, pass: $pass, manger: self._Login_manger)
 
         }
         }
@@ -74,14 +74,22 @@ struct InputTextField : View {
     
 }
 
+struct Logo : View {
+
+    var body: some View{
+        Image("logo").resizable().frame(width: 100, height: 100).padding(.init(top: -50, leading: 0,  bottom: 8, trailing: 0))
+    }
+}
+
 struct Login : View {
     
-    @Binding var login : Bool
+    @State var login : Bool
     @Binding var signup : Bool
     @Binding var user : String
     @Binding var pass : String
     @EnvironmentObject var manger : LoginRequset
-    @State var isInGelogd : Bool = false
+    @EnvironmentObject var sinManger : SingUpRequset
+    
        var body : some View{
         
 
@@ -90,23 +98,23 @@ struct Login : View {
                 LinearGradient(gradient: .init(colors: [Color("1"),Color("2")]), startPoint: /*@START_MENU_TOKEN@*/.leading/*@END_MENU_TOKEN@*/, endPoint: /*@START_MENU_TOKEN@*/.trailing/*@END_MENU_TOKEN@*/).edgesIgnoringSafeArea(/*@START_MENU_TOKEN@*/.all/*@END_MENU_TOKEN@*/)
     VStack(alignment: /*@START_MENU_TOKEN@*/.center/*@END_MENU_TOKEN@*/, spacing: 22, content: {
 
+        if manger.authenticated{
+            home(user: $user)
             
-            if self.manger.authenticated {
-                Text("correct").font(.headline)
-                
-            }
-
-        Image("logo").resizable().frame(width: 100, height: /*@START_MENU_TOKEN@*/100/*@END_MENU_TOKEN@*/).padding(.bottom, 10)
+        }
+        Logo()
        
         InputTextField(bindingText: $user, image: "person.fill", placeholder : "Username" , secureTextField : false)
         InputTextField(bindingText: $pass, image: "lock.fill", placeholder : "Password" , secureTextField : true)
         
-        NavigationLink(destination:             home(user: $user), isActive: $isInGelogd){
-            
+        NavigationLink(destination:
+                        home(user: $user) ,isActive: self.$login )
+                        {
             Button(action: {
-
+                
                 self.manger.postAuth(username: self.user, password: self.pass)
                 
+
             }
             
             )
@@ -122,27 +130,32 @@ struct Login : View {
             .cornerRadius(20)
             .shadow(radius: 25)
                     
-                
-            }
-
+        }
+            
+        NavigationLink(destination:
+                        signUp(signup : self.$signup, login: $login) ,isActive: $signup){
             
         Button(action: {
+            
+            
+            self.signup = true
             
         }) {
         
             Text("Forgot password?")
                 .foregroundColor(.white)
         }
-        
+                        }
         VStack {
             Text("Dont have account yet").foregroundColor(.white)
         }
         VStack{
-            NavigationLink(destination:                         signUp(signup : self.$signup, login: $login), isActive: $signup){
-                
+            NavigationLink(destination:
+                            signUp(signup : self.$signup, login: $login) ,isActive: $signup){
+               
                 Button(action: {
-                    
-                    self.signup = false
+                    self.login = false
+                    self.signup = true
                     
                     
                 }) {
@@ -184,7 +197,6 @@ struct signUp :View {
     @EnvironmentObject var loginManger : LoginRequset
     @EnvironmentObject var manger : SingUpRequset
     
-    @State var isAtive : Bool = false
     
     
     var body : some View{
@@ -195,7 +207,7 @@ struct signUp :View {
                     LinearGradient(gradient: .init(colors: [Color("1"),Color("2")]), startPoint: /*@START_MENU_TOKEN@*/.leading/*@END_MENU_TOKEN@*/, endPoint: /*@START_MENU_TOKEN@*/.trailing/*@END_MENU_TOKEN@*/).edgesIgnoringSafeArea(/*@START_MENU_TOKEN@*/.all/*@END_MENU_TOKEN@*/)
         VStack(alignment: /*@START_MENU_TOKEN@*/.center/*@END_MENU_TOKEN@*/, spacing: 22, content: {
             
-            Image("logo").resizable().frame(width: 100, height: /*@START_MENU_TOKEN@*/100/*@END_MENU_TOKEN@*/).padding(.bottom, 10)
+            Logo()
             
             InputTextField(bindingText: $email, image: "envelope.circle.fill", placeholder : "Email" , secureTextField : false)
             
@@ -205,15 +217,15 @@ struct signUp :View {
             
             InputTextField(bindingText: $repass, image: "lock.fill", placeholder : "RePassword" , secureTextField : false)
             
-            NavigationLink(destination:             Login(login: $login, signup: $signup, user: $user, pass: $pass, manger: _loginManger), isActive: $isAtive){
+            NavigationLink(destination:             Login(login: login, signup: $signup, user: $user, pass: $pass, manger: _loginManger), isActive: $login ){
            
                 Button(action: {
                     
                     
                     manger.postAuth(email: email, username: user, password: pass)
                     
-                    self.isAtive = false
-                    
+                    self.login = true
+                    self.signup = false
                 }) {
                     
                     Text("SignUP")
@@ -236,9 +248,7 @@ struct signUp :View {
         
         
     }
-    
-    
-   
+
 }
 
 struct home : View {
@@ -262,49 +272,6 @@ struct home : View {
         }
     }
 }
-
-//
-//            ZStack {
-//        LinearGradient(gradient: .init(colors: [Color("1"),Color("2")]), startPoint: /*@START_MENU_TOKEN@*/.leading/*@END_MENU_TOKEN@*/, endPoint: /*@START_MENU_TOKEN@*/.trailing/*@END_MENU_TOKEN@*/).edgesIgnoringSafeArea(/*@START_MENU_TOKEN@*/.all/*@END_MENU_TOKEN@*/)
-//
-//            VStack(alignment: /*@START_MENU_TOKEN@*/.center/*@END_MENU_TOKEN@*/, spacing: 22, content: {
-//
-//                Image("logo").resizable().frame(width: 100, height: /*@START_MENU_TOKEN@*/100/*@END_MENU_TOKEN@*/).padding(.bottom, 10)
-//
-//            }
-//
-//            NavigationLink(destinationName: Profile(user: $user)) {
-//
-//                Button(action: {
-//
-//
-//                    manger.postAuth(email: email, username: user, password: pass)
-//
-//                    self.isAtive = true
-//
-//                }) {
-//
-//                    Text("SignUP")
-//                        .foregroundColor(.white)
-//                        .padding()
-//                        .frame(width: 150)
-//
-//                }
-//                .background(LinearGradient(gradient: .init(colors: [Color("1"),Color("2")]), startPoint: .leading/*@END_MENU_TOKEN@*/, endPoint: /*@START_MENU_TOKEN@*/.trailing))
-//                .cornerRadius(20)
-//                .shadow(radius: 25)
-//            }
-//
-//
-//    })
-//
-//            }
-//
-//        )}
-//        }
-//
-       
-
 
 struct Profile : View {
     @Binding var user : String
